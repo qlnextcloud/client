@@ -911,4 +911,36 @@ bool SimpleNetworkJob::finished()
     return true;
 }
 
+void fetchPrivateLinkUrl(AccountPtr account, const QString &remotePath,
+    const QByteArray &numericFileId, QObject *target,
+    std::function<void(const QString &url)> targetFun)
+{
+    const QString oldUrl = account->deprecatedPrivateLinkUrl(numericFileId).toString(QUrl::FullyEncoded);
+
+    // If the server doesn't have the property, use the old url directly.
+    if (!account->capabilities().privateLinkPropertyAvailable()) {
+        QTimer::singleShot(0, target, [=]() {
+            targetFun(oldUrl);
+        });
+        return;
+    }
+
+    // Retrieve the new link by PROPFIND
+    PropfindJob *job = new PropfindJob(account, remotePath, target);
+    job->setProperties(QList<QByteArray>() << "http://owncloud.org/ns:privatelink");
+    job->setTimeout(10 * 1000);
+    QObject::connect(job, &PropfindJob::result, target, [=](const QVariantMap &result) {
+        auto privateLinkUrl = result["privatelink"].toString();
+        if (!privateLinkUrl.isEmpty()) {
+            targetFun(privateLinkUrl);
+        } else {
+            targetFun(oldUrl);
+        }
+    });
+    QObject::connect(job, &PropfindJob::finishedWithError, target, [=](QNetworkReply *) {
+        targetFun(oldUrl);
+    });
+    job->start();
+}
+
 } // namespace OCC

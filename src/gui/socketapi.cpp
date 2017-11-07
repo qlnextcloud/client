@@ -492,7 +492,7 @@ void SocketApi::command_SHARE_MENU_TITLE(const QString &, SocketListener *listen
 }
 
 // Fetches the private link url asynchronously and then calls the target slot
-void fetchPrivateLinkUrl(const QString &localFile, SocketApi *target, void (SocketApi::*targetFun)(const QString &url) const)
+static void fetchPrivateLinkUrlHelper(const QString &localFile, SocketApi *target, void (SocketApi::*targetFun)(const QString &url) const)
 {
     Folder *shareFolder = FolderMan::instance()->folderForPath(localFile);
     if (!shareFolder) {
@@ -503,45 +503,25 @@ void fetchPrivateLinkUrl(const QString &localFile, SocketApi *target, void (Sock
     const QString localFileClean = QDir::cleanPath(localFile);
     const QString file = localFileClean.mid(shareFolder->cleanPath().length() + 1);
 
+    auto account = shareFolder->accountState()->account();
+
     // Generate private link ourselves: used as a fallback
     SyncJournalFileRecord rec;
     if (!shareFolder->journalDb()->getFileRecord(file, &rec) || !rec.isValid())
         return;
-    const QString oldUrl =
-        shareFolder->accountState()->account()->deprecatedPrivateLinkUrl(rec.numericFileId()).toString(QUrl::FullyEncoded);
-
-    // If the server doesn't have the property, use the old url directly.
-    if (!shareFolder->accountState()->account()->capabilities().privateLinkPropertyAvailable()) {
-        (target->*targetFun)(oldUrl);
-        return;
-    }
-
-    // Retrieve the new link by PROPFIND
-    PropfindJob *job = new PropfindJob(shareFolder->accountState()->account(), file, target);
-    job->setProperties(QList<QByteArray>() << "http://owncloud.org/ns:privatelink");
-    job->setTimeout(10 * 1000);
-    QObject::connect(job, &PropfindJob::result, target, [=](const QVariantMap &result) {
-        auto privateLinkUrl = result["privatelink"].toString();
-        if (!privateLinkUrl.isEmpty()) {
-            (target->*targetFun)(privateLinkUrl);
-        } else {
-            (target->*targetFun)(oldUrl);
-        }
+    fetchPrivateLinkUrl(account, file, rec.numericFileId(), target, [=](const QString &url) {
+        (target->*targetFun)(url);
     });
-    QObject::connect(job, &PropfindJob::finishedWithError, target, [=](QNetworkReply *) {
-        (target->*targetFun)(oldUrl);
-    });
-    job->start();
 }
 
 void SocketApi::command_COPY_PRIVATE_LINK(const QString &localFile, SocketListener *)
 {
-    fetchPrivateLinkUrl(localFile, this, &SocketApi::copyPrivateLinkToClipboard);
+    fetchPrivateLinkUrlHelper(localFile, this, &SocketApi::copyPrivateLinkToClipboard);
 }
 
 void SocketApi::command_EMAIL_PRIVATE_LINK(const QString &localFile, SocketListener *)
 {
-    fetchPrivateLinkUrl(localFile, this, &SocketApi::emailPrivateLink);
+    fetchPrivateLinkUrlHelper(localFile, this, &SocketApi::emailPrivateLink);
 }
 
 void SocketApi::copyPrivateLinkToClipboard(const QString &link) const

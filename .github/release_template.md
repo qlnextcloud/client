@@ -106,5 +106,5 @@ On Release Day (for final release):
 15 minutes after after release:
 * [ ] Test all advertised download links to have the expected version
 * [ ] Check for build errors in OBS
-* [ ] disable publishing in OBS
+* [ ] disable publishing in OBS to prevent that accidential rebuilds hit the end users.
 ```

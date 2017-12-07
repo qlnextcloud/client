@@ -83,7 +83,7 @@ ActivityWidget::ActivityWidget(QWidget *parent) :
     _ui->_notifyScroll->setAlignment(Qt::AlignTop);
     _ui->_notifyScroll->setWidget(w);
 
-    showLabels();
+    //showLabels();
 
     connect(_model, SIGNAL(activityJobStatusCode(AccountState*,int)),
             this, SLOT(slotAccountActivityStatus(AccountState*,int)));
@@ -160,7 +160,7 @@ void ActivityWidget::slotAccountActivityStatus(AccountState *ast, int statusCode
     }
 
     checkActivityTabVisibility();
-    showLabels();
+    //showLabels();
 }
 
 // FIXME: Reused from protocol widget. Move over to utilities.
@@ -520,15 +520,16 @@ ActivitySettings::ActivitySettings(QWidget *parent)
     // create a tab widget for the three activity views
     _tab = new QTabWidget(this);
     hbox->addWidget(_tab);
-    _activityWidget = new ActivityWidget(this);
-    _activityTabId = _tab->insertTab(0, _activityWidget, Theme::instance()->applicationIcon(), tr("Server Activity"));
-    connect(_activityWidget, SIGNAL(copyToClipboard()), this, SLOT(slotCopyToClipboard()));
-    connect(_activityWidget, SIGNAL(hideActivityTab(bool)), this, SLOT(setActivityTabHidden(bool)));
-    connect(_activityWidget, SIGNAL(guiLog(QString,QString)), this, SIGNAL(guiLog(QString,QString)));
-    connect(_activityWidget, SIGNAL(newNotification()), SLOT(slotShowActivityTab()));
+    //_activityWidget = new ActivityWidget(this);
+    //_activityTabId = _tab->insertTab(0, _activityWidget, Theme::instance()->applicationIcon(), tr("Server Activity"));
+    //connect(_activityWidget, SIGNAL(copyToClipboard()), this, SLOT(slotCopyToClipboard()));
+    //connect(_activityWidget, SIGNAL(hideActivityTab(bool)), this, SLOT(setActivityTabHidden(bool)));
+    //connect(_activityWidget, SIGNAL(guiLog(QString,QString)), this, SIGNAL(guiLog(QString,QString)));
+    //connect(_activityWidget, SIGNAL(newNotification()), SLOT(slotShowActivityTab()));
 
     _protocolWidget = new ProtocolWidget(this);
-    _tab->insertTab(1, _protocolWidget, Theme::instance()->syncStateIcon(SyncResult::Success), tr("Sync Protocol"));
+    //_tab->insertTab(1, _protocolWidget, Theme::instance()->syncStateIcon(SyncResult::Success), tr("Sync Protocol"));
+    _tab->insertTab(0, _protocolWidget, Theme::instance()->syncStateIcon(SyncResult::Success), tr("Sync Protocol"));
     connect(_protocolWidget, SIGNAL(copyToClipboard()), this, SLOT(slotCopyToClipboard()));
     connect(_protocolWidget, SIGNAL(issueItemCountUpdated(int)),
             this, SLOT(slotShowIssueItemCount(int)));
@@ -546,18 +547,19 @@ ActivitySettings::ActivitySettings(QWidget *parent)
     connect(_copyBtn, SIGNAL(clicked()), this, SLOT(slotCopyToClipboard()));
 
     w->setLayout(vbox2);
-    _syncIssueTabId = _tab->insertTab(2, w, Theme::instance()->syncStateIcon(SyncResult::Problem), QString());
+    //_syncIssueTabId = _tab->insertTab(2, w, Theme::instance()->syncStateIcon(SyncResult::Problem), QString());
+    _syncIssueTabId = _tab->insertTab(1, w, Theme::instance()->syncStateIcon(SyncResult::Problem), QString());
     slotShowIssueItemCount(0); // to display the label.
 
     // Add a progress indicator to spin if the acitivity list is updated.
-    _progressIndicator = new QProgressIndicator(this);
-    _tab->setCornerWidget(_progressIndicator);
+    //_progressIndicator = new QProgressIndicator(this);
+    //_tab->setCornerWidget(_progressIndicator);
 
     connect(&_notificationCheckTimer, SIGNAL(timeout()),
             this, SLOT(slotRegularNotificationCheck()));
 
     // connect a model signal to stop the animation.
-    connect(_activityWidget, SIGNAL(rowsInserted()), _progressIndicator, SLOT(stopAnimation()));
+    //connect(_activityWidget, SIGNAL(rowsInserted()), _progressIndicator, SLOT(stopAnimation()));
 
     // We want the protocol be the default
     _tab->setCurrentIndex(1);
@@ -577,7 +579,7 @@ void ActivitySettings::setActivityTabHidden(bool hidden)
     }
 
     if( !hidden && _activityTabId == -1 ) {
-        _activityTabId = _tab->insertTab(0, _activityWidget, Theme::instance()->applicationIcon(), tr("Server Activity"));
+       // _activityTabId = _tab->insertTab(0, _activityWidget, Theme::instance()->applicationIcon(), tr("Server Activity"));
     }
 }
 
@@ -606,15 +608,16 @@ void ActivitySettings::slotCopyToClipboard()
     int idx = _tab->currentIndex();
     QString message;
 
-    if( idx == 0 ) {
+    //if( idx == 0 ) {
         // the activity widget
-        _activityWidget->storeActivityList(ts);
-        message = tr("The server activity list has been copied to the clipboard.");
-    } else if(idx == 1 ) {
+        //_activityWidget->storeActivityList(ts);
+        //message = tr("The server activity list has been copied to the clipboard.");
+    //} else
+	if(idx == 0 ) {
         // the protocol widget
         _protocolWidget->storeSyncActivity(ts);
         message = tr("The sync activity list has been copied to the clipboard.");
-    } else if(idx == 2 ) {
+    } else if(idx == 1 ) {
         // issues Widget
         message = tr("The list of unsynced items has been copied to the clipboard.");
        _protocolWidget->storeSyncIssues(ts);
@@ -626,7 +629,7 @@ void ActivitySettings::slotCopyToClipboard()
 
 void ActivitySettings::slotRemoveAccount( AccountState *ptr )
 {
-    _activityWidget->slotRemoveAccount(ptr);
+    //_activityWidget->slotRemoveAccount(ptr);
 }
 
 void ActivitySettings::slotRefresh( AccountState* ptr )
@@ -644,10 +647,10 @@ void ActivitySettings::slotRefresh( AccountState* ptr )
     }
     if( ptr && ptr->isConnected() ) {
         if( isVisible() || !timer.isValid() ) {
-            _progressIndicator->startAnimation();
-            _activityWidget->slotRefreshActivities( ptr);
+            //_progressIndicator->startAnimation();
+            //_activityWidget->slotRefreshActivities( ptr);
         }
-        _activityWidget->slotRefreshNotifications(ptr);
+        //_activityWidget->slotRefreshNotifications(ptr);
         timer.start();
     }
 }

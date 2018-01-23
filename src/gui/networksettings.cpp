@@ -31,7 +31,7 @@ NetworkSettings::NetworkSettings(QWidget *parent) :
     _ui(new Ui::NetworkSettings)
 {
     _ui->setupUi(this);
-
+    /*
     _ui->hostLineEdit->setPlaceholderText(tr("Hostname of proxy server"));
     _ui->userLineEdit->setPlaceholderText(tr("Username for proxy server"));
     _ui->passwordLineEdit->setPlaceholderText(tr("Password for proxy server"));
@@ -40,9 +40,10 @@ NetworkSettings::NetworkSettings(QWidget *parent) :
     _ui->typeComboBox->addItem(tr("SOCKS5 proxy"), QNetworkProxy::Socks5Proxy);
 
     _ui->authRequiredcheckBox->setEnabled(true);
-
+    */
     // Explicitly set up the enabled status of the proxy auth widgets to ensure
     // toggling the parent enables/disables the children
+    /*
     _ui->userLineEdit->setEnabled(true);
     _ui->passwordLineEdit->setEnabled(true);
     _ui->authWidgets->setEnabled(_ui->authRequiredcheckBox->isChecked());
@@ -55,9 +56,11 @@ NetworkSettings::NetworkSettings(QWidget *parent) :
             _ui->typeComboBox, SLOT(setEnabled(bool)));
 
     loadProxySettings();
+    */
     loadBWLimitSettings();
 
     // proxy
+    /*
     connect(_ui->typeComboBox, SIGNAL(currentIndexChanged(int)), SLOT(saveProxySettings()));
     connect(_ui->proxyButtonGroup, SIGNAL(buttonClicked(int)), SLOT(saveProxySettings()));
     connect(_ui->hostLineEdit, SIGNAL(editingFinished()), SLOT(saveProxySettings()));
@@ -65,7 +68,7 @@ NetworkSettings::NetworkSettings(QWidget *parent) :
     connect(_ui->passwordLineEdit, SIGNAL(editingFinished()), SLOT(saveProxySettings()));
     connect(_ui->portSpinBox, SIGNAL(editingFinished()), SLOT(saveProxySettings()));
     connect(_ui->authRequiredcheckBox, SIGNAL(toggled(bool)), SLOT(saveProxySettings()));
-
+    */
     connect(_ui->uploadLimitRadioButton, SIGNAL(clicked()), SLOT(saveBWLimitSettings()));
     connect(_ui->noUploadLimitRadioButton, SIGNAL(clicked()), SLOT(saveBWLimitSettings()));
     connect(_ui->autoUploadLimitRadioButton, SIGNAL(clicked()), SLOT(saveBWLimitSettings()));
@@ -85,6 +88,7 @@ QSize NetworkSettings::sizeHint() const {
     return QSize(ownCloudGui::settingsDialogSize().width(), QWidget::sizeHint().height());
 }
 
+/*
 void NetworkSettings::loadProxySettings()
 {
     if (Theme::instance()->forceSystemNetworkProxy()) {
@@ -120,7 +124,7 @@ void NetworkSettings::loadProxySettings()
     _ui->userLineEdit->setText(cfgFile.proxyUser());
     _ui->passwordLineEdit->setText(cfgFile.proxyPassword());
 }
-
+*/
 void NetworkSettings::loadBWLimitSettings()
 {
     ConfigFile cfgFile;
@@ -166,7 +170,7 @@ void NetworkSettings::loadBWLimitSettings()
     }
     _ui->uploadSpinBox->setValue(cfgFile.uploadLimit());
 }
-
+/*
 void NetworkSettings::saveProxySettings()
 {
     ConfigFile cfgFile;
@@ -192,7 +196,7 @@ void NetworkSettings::saveProxySettings()
     // start the sync.
     FolderMan::instance()->setDirtyProxy(true);
 }
-
+*/
 void NetworkSettings::saveBWLimitSettings()
 {
     ConfigFile cfgFile;

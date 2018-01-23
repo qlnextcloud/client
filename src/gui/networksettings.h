@@ -38,11 +38,11 @@ public:
     QSize sizeHint() const;
 
 private slots:
-    void saveProxySettings();
+    //void saveProxySettings();
     void saveBWLimitSettings();
 
 private:
-    void loadProxySettings();
+    //void loadProxySettings();
     void loadBWLimitSettings();
 
     Ui::NetworkSettings *_ui;

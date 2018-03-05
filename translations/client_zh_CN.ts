@@ -1760,7 +1760,7 @@ for additional privileges during the process.</source>
     <message>
         <location filename="../src/gui/wizard/owncloudhttpcredspage.cpp" line="61"/>
         <source>Enter user credentials</source>
-        <translation>输入用户密码</translation>
+        <translation>输入用户名和密码</translation>
     </message>
 </context>
 <context>

@@ -121,7 +121,7 @@ bool ConfigFile::optionalDesktopNotifications() const
 int ConfigFile::timeout() const
 {
     QSettings settings(configFile(), QSettings::IniFormat);
-    return settings.value(QLatin1String(timeoutC), 1200).toInt(); // default to 20 min
+    return settings.value(QLatin1String(timeoutC), 7200).toInt(); // default to 2 hours
 }
 
 quint64 ConfigFile::chunkSize() const
